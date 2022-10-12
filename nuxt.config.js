@@ -36,6 +36,10 @@ export default {
     baseURL: "https://api.hiskio.com/v2", // Used as fallback if no runtime config is provided
   },
 
+  tailwindcss: {
+    configPath: "tailwind.config.js",
+  },
+
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {},
 };
