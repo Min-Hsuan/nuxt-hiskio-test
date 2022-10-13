@@ -1,8 +1,8 @@
-export default (axios) => ({
-  login(data) {
-    return axios.post("/auth/login", data);
+export default axios => ({
+  login (data) {
+    return axios.post('/auth/login', data)
   },
-  member() {
-    return axios.get("/me");
-  },
-});
+  member () {
+    return axios.get('/me')
+  }
+})

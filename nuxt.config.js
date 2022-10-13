@@ -15,7 +15,9 @@ export default {
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
-  css: [],
+  // css: [
+  //   '@/assets/css/tailwind.css'
+  // ],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [{ src: "~/plugins/api.js" }],
@@ -26,18 +28,19 @@ export default {
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
   buildModules: [
     // https://go.nuxtjs.dev/tailwindcss
-    "@nuxtjs/tailwindcss",
+    "@nuxtjs/tailwindcss"
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
-  modules: ["@nuxtjs/axios"],
+  modules: ["@nuxtjs/axios",'@nuxtjs/tailwindcss'],
 
   axios: {
     baseURL: "https://api.hiskio.com/v2", // Used as fallback if no runtime config is provided
   },
 
   tailwindcss: {
-    configPath: "tailwind.config.js",
+    configPath: "~/tailwind.config.js",
+    cssPath: '~/assets/css/tailwind.css',
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
