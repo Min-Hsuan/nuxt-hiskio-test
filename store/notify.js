@@ -1,15 +1,15 @@
 const getDefaultState = () => {
   return {
-    type: 'error', // error/success/pending
-    message: null
-  }
-}
+    type: null, // error/success/pending
+    message: null,
+  };
+};
 
-export const state = getDefaultState
+export const state = getDefaultState;
 
 export const mutations = {
-  setMessage (state, payload) {
-    state.type = payload.type
-    state.message = payload.message
-  }
-}
+  setMessage(state, payload) {
+    state.type = payload.type;
+    state.message = payload.message;
+  },
+};

@@ -50,7 +50,9 @@
             height="28"
             class="inline-block align-middle mr-3"
           />
-          <span class="min-w-[150px] inline-block text-left">使用 Facebook 登入</span>
+          <span class="min-w-[150px] inline-block text-left"
+            >使用 Facebook 登入</span
+          >
         </li>
         <li class="border rounded-md border-gray-400 py-2.5 text-center">
           <img
@@ -60,7 +62,9 @@
             height="28"
             class="inline-block align-middle mr-3"
           />
-          <span class="min-w-[150px] inline-block text-left">使用 Google 登入</span>
+          <span class="min-w-[150px] inline-block text-left"
+            >使用 Google 登入</span
+          >
         </li>
         <li class="border rounded-md border-gray-400 py-2.5 text-center">
           <img
@@ -70,7 +74,9 @@
             height="28"
             class="inline-block align-middle mr-3"
           />
-          <span class="min-w-[150px] inline-block text-left">使用 Github 登入</span>
+          <span class="min-w-[150px] inline-block text-left"
+            >使用 Github 登入</span
+          >
         </li>
         <li class="border rounded-md border-gray-400 py-2.5 text-center">
           <img
@@ -80,13 +86,13 @@
             height="28"
             class="inline-block align-middle mr-3"
           />
-          <span class="min-w-[150px] inline-block text-left">使用 LinkedIn 登入</span>
+          <span class="min-w-[150px] inline-block text-left"
+            >使用 LinkedIn 登入</span
+          >
         </li>
       </ul>
       <div class="mt-6">
-        <p class="text-center mb-5">
-          使用 HiSKIO ID 登入
-        </p>
+        <p class="text-center mb-5">使用 HiSKIO ID 登入</p>
         <div class="flex items-center bg-[#FAFAFA] rounded-md px-3 py-2.5 mb-2">
           <img src="/account.svg" alt="帳號" />
           <input
@@ -116,9 +122,7 @@
       >
         登入
       </button>
-      <button class="text-gray-500 text-center w-full">
-        忘記密碼
-      </button>
+      <button class="text-gray-500 text-center w-full">忘記密碼</button>
     </div>
     <!-- 註冊 -->
     <div v-else class="">
@@ -128,33 +132,44 @@
 </template>
 <script>
 export default {
-  data () {
+  data() {
     return {
       activeTab: 1,
       password: null,
       account: null,
-      confirm: false
-    }
+      confirm: false,
+    };
   },
   methods: {
-    changeTabHandler (val) {
-      this.$emit('tab', val)
+    changeTabHandler(val) {
+      this.$emit("tab", val);
     },
-    async loginHandler () {
-      const { status, data ,message } = await this.$api.auth.login({
-        account: this.account,
-        password: this.password,
-        confirm: this.confirm
-      })
-      if(status === 200){
-        this.$store.commit('notify/setMessage',{type:'success', message: '登入成功'})
-        this.$store.commit('user/setToken',{token: data.access_token, token_type: data.token_type})
+    async loginHandler() {
+      try {
+        const response = await this.$api.auth.login({
+          account: this.account,
+          password: this.password,
+          confirm: this.confirm,
+        });
+        if (response.status && response.status === 200) {
+          this.$store.commit("notify/setMessage", {
+            type: "success",
+            message: "登入成功",
+          });
+          this.$store.commit("user/setToken", {
+            token: response.data.access_token,
+            token_type: response.data.token_type,
+          });
+        }
+      } catch (error) {
+        if (error.response) {
+          this.$store.commit("notify/setMessage", {
+            type: "error",
+            message: error.response.data.message["account"][0],
+          });
+        }
       }
-      if(status === 400 && message){
-        this.$store.commit('notify/setMessage',{type:'error', message: message['account'][0]})
-      }
-      console.log(status, data)
-    }
-  }
-}
+    },
+  },
+};
 </script>
