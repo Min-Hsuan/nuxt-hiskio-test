@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full h-screen relative flex flex-col justify-center bg-white px-16 py-4 md:max-h-[500px] md:rounded-3xl md:shadow-md md:shadow-gray-200"
+    class="w-full h-screen flex flex-col items-center bg-white px-16 py-4 md:rounded-3xl md:shadow-md md:shadow-gray-200 pt-10 z-30 md:py-10 md:w-auto md:h-auto md:absolute md:left-2/4 md:translate-x-[-50%] min-h-[500px] md:min-w-[300px] md:top-0 md:translate-y-[10%]"
   >
     <button class="absolute right-5 top-5" @click="() => $emit('close')">
       <img src="/close.svg" alt="關閉" width="13" height="13" />
@@ -23,7 +23,7 @@
         :class="{
           '!text-primary border-b-4 border-primary': index + 1 === activeTab,
         }"
-        @click="changeTabHandler(tab.value)"
+        @click="changeTabHandler(index + 1)"
       >
         <label
           class="block cursor-pointer"
@@ -132,17 +132,33 @@
 </template>
 <script>
 export default {
+  props: {
+    type: {
+      type: Number,
+      required: true,
+      default: 1,
+    },
+  },
   data() {
     return {
-      activeTab: 1,
       password: null,
       account: null,
       confirm: false,
     };
   },
+  computed: {
+    activeTab: {
+      get() {
+        return this.type;
+      },
+      set() {
+        this.$emit("change", Number(event.target.value));
+      },
+    },
+  },
   methods: {
     changeTabHandler(val) {
-      this.$emit("tab", val);
+      this.$emit("type", val);
     },
     async loginHandler() {
       try {
@@ -156,10 +172,17 @@ export default {
             type: "success",
             message: "登入成功",
           });
-          this.$store.commit("user/setToken", {
-            token: response.data.access_token,
-            token_type: response.data.token_type,
+          this.$emit("close");
+          //store token in vuex and cookie
+          const token = "Bearer" + " " + response.data.access_token;
+          this.$store.commit("user/setToken", token);
+          this.$cookies.set("auth-token", token, {
+            expires: new Date(new Date().getTime() + response.data.expires_in),
+            sameSite: "lax",
+            secure: true,
           });
+          //get user data
+          await this.$store.dispatch("user/getInfo");
         }
       } catch (error) {
         if (error.response) {
