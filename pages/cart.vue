@@ -6,10 +6,7 @@
       >
         <div class="mb-[50px]">
           <h2 class="text-xl font-medium md:text-[1.375rem] mb-5">購物車</h2>
-          <ul
-            v-if="cartItems.length > 0"
-            class="bg-white rounded-[10px] shadow-md shadow-gray-200"
-          >
+          <ul class="bg-white rounded-[10px] shadow-md shadow-gray-200">
             <li
               class="hidden md:grid md:grid-cols-[364px_75px_1fr_75px] text-gray-500 px-3 py-4 border-b border-gray-300"
             >
@@ -18,11 +15,13 @@
               <p class="text-center">結帳金額</p>
               <p></p>
             </li>
-            <CartItem
-              v-for="(item, index) in cartItems"
-              :key="index"
-              :item="item"
-            />
+            <template v-if="cartItems.length > 0">
+              <CartItem
+                v-for="(item, index) in cartItems"
+                :key="index"
+                :item="item"
+              />
+            </template>
           </ul>
         </div>
         <div class="">
@@ -51,10 +50,10 @@
               </button>
               <div class="flex justify-between items-center my-4">
                 <span class="text-gray-500">金額</span>
-                <span>$10,800</span>
+                <span>${{ subtotal | currency }}</span>
               </div>
               <p class="text-[28px] mt-[50px] mb-5 md:mt-5 md:mb-4 text-right">
-                $10,800
+                ${{ total | currency }}
               </p>
               <button class="text-white bg-hiskio-red rounded w-full py-2">
                 前往結帳
@@ -78,7 +77,11 @@
       <ul
         class="md:grid md:grid-cols-4 md:gap-4 max-w-[1200px] mx-auto pb-5 md:pb-16 space-y-3 md:space-y-0"
       >
-        <CartFundraise v-for="i in 4" :key="i" />
+        <CartFundraise
+          v-for="fundraise in fundraiseData"
+          :key="fundraise.id"
+          :item="fundraise"
+        />
       </ul>
     </div>
   </div>
@@ -87,16 +90,48 @@
 <script>
 import { mapState } from "vuex";
 export default {
+  filters: {
+    currency(val) {
+      return val.toLocaleString("en-US");
+    },
+  },
+  async asyncData({ $api, store }) {
+    let fundraiseData = [];
+    if (store.state.fundraise.length === 0) {
+      const { data } = await $api.course.fundraise();
+      if (data) {
+        store.commit("setFundraise", data);
+      }
+      fundraiseData = data;
+    } else {
+      fundraiseData = store.state.fundraise;
+    }
+    return { fundraiseData };
+  },
   computed: {
     ...mapState({
       cartItems: (state) => state.cart.items,
       subtotal: (state) => state.cart.subtotal,
       total: (state) => state.cart.total,
+      token: (state) => state.user.token,
     }),
   },
   async fetch() {
-    const { data } = await this.$api.cart.get();
-    data && (await this.$store.commit("cart/setContent", data));
+    await this.getCartItems();
+  },
+  watch: {
+    async token(newVal, oldVal) {
+      if (newVal) {
+        await this.getCartItems();
+      }
+    },
+  },
+  methods: {
+    async getCartItems() {
+      const { data } = await this.$api.cart.get();
+      data && (await this.$store.commit("cart/setItems", data.data));
+      await this.$store.dispatch("cart/calcAmount");
+    },
   },
 };
 </script>

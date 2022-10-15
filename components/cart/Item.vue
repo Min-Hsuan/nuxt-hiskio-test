@@ -20,7 +20,7 @@
     >
     <button
       class="text-center order-3 md:order-4 md:mr-0"
-      @click="deleteHandler"
+      @click="deleteHandler(item.id)"
     >
       <img
         src="/trash.svg"
@@ -33,6 +33,7 @@
   </li>
 </template>
 <script>
+import { mapActions } from "vuex";
 export default {
   filters: {
     currency(val) {
@@ -46,36 +47,9 @@ export default {
     },
   },
   methods: {
-    async deleteHandler() {
-      try {
-        const response = await this.$api.cart.remove({
-          items: [
-            {
-              id: this.item.id,
-              coupon: "",
-            },
-          ],
-          coupons: [],
-        });
-        console.log(response);
-        if (response.status === 200) {
-          await this.$store.commit("notify/setMessage", {
-            type: "success",
-            message: "已從購物車移除",
-          });
-          try {
-            const cartResponse = await this.$api.cart.get();
-            cartResponse &&
-              (await this.$store.commit("cart/setContent", cartResponse.data));
-          } catch (error) {}
-        }
-      } catch (error) {
-        this.$store.commit("notify/setMessage", {
-          type: "error",
-          message: "oh!no~請稍後再試",
-        });
-      }
-    },
+    ...mapActions({
+      deleteHandler: "cart/deleteItem",
+    }),
   },
 };
 </script>

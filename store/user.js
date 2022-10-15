@@ -13,8 +13,7 @@ export const getters = {
 };
 export const mutations = {
   resetState(state) {
-    const initState = getDefaultState();
-    Object.keys(initState).forEach((key) => (state[key] = initState(key)));
+    Object.assign(state, getDefaultState());
   },
   setToken(state, payload) {
     state.token = payload;
@@ -34,5 +33,18 @@ export const actions = {
         avatar: response.data.avatar,
       });
     }
+  },
+  logout({ commit }, msg = "已登出") {
+    commit("resetState");
+    commit("cart/resetState", null, { root: true });
+    commit(
+      "notify/setMessage",
+      {
+        type: "success",
+        message: msg,
+      },
+      { root: true }
+    );
+    this.$cookies.remove("auth-token");
   },
 };

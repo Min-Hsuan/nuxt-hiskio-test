@@ -86,13 +86,13 @@
       </ul>
       <template v-if="!token">
         <button
-          @click="()=>$emit('action',1)"
+          @click="() => $emit('action', 1)"
           class="active:bg-gray-100 block mt-4 py-4 px-3.5 text-left w-full"
         >
           登入
         </button>
         <button
-          @click="()=>$emit('action',2)"
+          @click="() => $emit('action', 2)"
           class="active:bg-gray-100 mb-4 text-primary font-medium block py-4 px-3.5 text-left w-full"
         >
           註冊
@@ -101,6 +101,7 @@
       <template v-else>
         <button
           class="active:bg-gray-100 block my-4 py-4 px-3.5 w-full text-left"
+          @click="logoutHandler('已登出')"
         >
           登出
         </button>
@@ -109,7 +110,7 @@
   </div>
 </template>
 <script>
-import { mapState } from "vuex";
+import { mapState, mapActions } from "vuex";
 export default {
   computed: {
     ...mapState({
@@ -118,11 +119,16 @@ export default {
       name: (state) => state.user.name,
     }),
   },
-  data(){
+  data() {
     return {
       menuIsOpen: false,
-    }
-  }
+    };
+  },
+  methods: {
+    ...mapActions({
+      logoutHandler: "user/logout",
+    }),
+  },
 };
 </script>
 <style lang=""></style>

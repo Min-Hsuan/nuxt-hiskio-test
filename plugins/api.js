@@ -16,7 +16,11 @@ export default ({ $axios, store, app }, inject) => {
 
   request.onRequest((config) => {
     const cookieToken = app.$cookies.get("auth-token");
-    if (cookieToken) {
+    const token = store.getters["user/getToken"];
+    if (!cookieToken && token) {
+      store.dispatch("user/logout", "連線逾時，請重新登入", { root: true });
+      return;
+    } else if (token) {
       config.headers.Authorization = cookieToken;
     }
     return config;
@@ -25,7 +29,10 @@ export default ({ $axios, store, app }, inject) => {
     return response;
   });
   request.onError((error) => {
-    return error;
+    const code = parseInt(error.response && error.response.status);
+    if (code === 401) {
+      store.dispatch("user/logout", null, { root: true });
+    }
   });
   inject("api", factories);
 };
