@@ -2,7 +2,7 @@
   <div class="text-gray-700">
     <div class="bg-[#FAFAFA] px-3.5">
       <div
-        class="md:grid md:grid-cols-[1fr_380px] md:gap-4 max-w-[1200px] mx-auto md:py-[80px] pb-6 pt-5"
+        class="lg:grid lg:grid-cols-[1fr_380px] lg:gap-4 max-w-[1200px] mx-auto lg:py-[80px] pb-6 pt-5"
       >
         <div class="mb-[50px]">
           <h2 class="text-xl font-medium md:text-[1.375rem] mb-5">購物車</h2>
@@ -117,7 +117,7 @@ export default {
     }),
   },
   async fetch() {
-    await this.getCartItems();
+    this.token && (await this.getCartItems());
   },
   watch: {
     async token(newVal, oldVal) {

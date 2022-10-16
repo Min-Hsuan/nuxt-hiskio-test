@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full h-screen flex flex-col items-center bg-white px-16 py-4 md:rounded-3xl md:shadow-md md:shadow-gray-200 pt-10 z-30 md:py-10 md:w-auto md:h-auto md:absolute md:left-2/4 md:translate-x-[-50%] min-h-[500px] md:min-w-[300px] md:top-0 md:translate-y-[10%]"
+    class="w-full h-screen flex flex-col items-center bg-white px-16 py-4 md:rounded-3xl md:shadow-md md:shadow-gray-200 pt-10 z-30 md:py-10 md:w-auto md:h-auto md:absolute md:left-2/4 md:translate-x-[-50%] min-h-[500px] md:min-w-[450px] md:top-0 md:translate-y-[10%] overflow-hidden"
   >
     <button class="absolute right-5 top-5" @click="() => $emit('close')">
       <img src="/close.svg" alt="關閉" width="13" height="13" />
@@ -12,7 +12,7 @@
       height="18"
       class="mx-auto mb-8"
     />
-    <ul class="flex justify-evenly space-x-4 mb-5">
+    <ul class="flex justify-evenly space-x-4 mb-5 w-full">
       <li
         v-for="(tab, index) in [
           { value: 'login', text: '登入' },
@@ -40,7 +40,7 @@
       </li>
     </ul>
     <!-- 登入 -->
-    <div v-if="activeTab === 1" class="">
+    <div v-if="activeTab === 1" class="w-full">
       <ul class="space-y-3">
         <li class="border rounded-md border-gray-400 py-2.5 text-center">
           <img
@@ -112,9 +112,11 @@
           />
         </div>
       </div>
-      <div class="mt-5 mb-6">
+      <div class="mt-5 mb-6 text-gray-500">
         <input v-model="confirm" type="checkbox" />
-        <span>登入註冊即代表您同意使用者及隱私權政策</span>
+        <p class="text-sm inline-block">
+          登入註冊即代表您同意<span class="underline">使用者及隱私權政策</span>
+        </p>
       </div>
       <button
         class="px-4 py-2 bg-primary rounded text-white w-full mb-5"
@@ -125,9 +127,21 @@
       <button class="text-gray-500 text-center w-full">忘記密碼</button>
     </div>
     <!-- 註冊 -->
-    <div v-else class="">
+    <div v-else class="w-full">
       <p>註冊</p>
     </div>
+    <span
+      class="bg-[#E7F0F5] inline-block w-[200px] h-[200px] rounded-[50px] absolute rotate-[-120deg] overflow-hidden left-[-150px] top-[-80px]"
+    ></span>
+    <span
+      class="border-hiskio-yellow border-[3px] inline-block w-[260px] h-[260px] rounded-[64px] absolute rotate-[-60deg] overflow-hidden left-[-240px] top-[-13px] opacity-20"
+    ></span>
+    <span
+      class="bg-hiskio-yellow nline-block w-[193px] h-[193px] rounded-[64px] absolute rotate-[-120deg] overflow-hidden right-[-170px] bottom-[30%] opacity-20"
+    ></span>
+    <span
+      class="border-primary border-[3px] inline-block w-[193px] h-[193px] rounded-[50px] absolute rotate-[-60deg] overflow-hidden right-[-190px] bottom-[40%] opacity-20"
+    ></span>
   </div>
 </template>
 <script>
@@ -183,6 +197,19 @@ export default {
           });
           //get user data
           await this.$store.dispatch("user/getInfo");
+          const cartItems = this.$store.state.cart.items;
+          // post localStorage items to api
+          if (cartItems.length > 0) {
+            const idArray = cartItems.reduce(
+              (acc, item) => [...acc, { id: item.id, coupon: "" }],
+              []
+            );
+            const addResponse = await this.$api.cart.add({
+              items: idArray,
+            });
+            this.$store.commit("cart/setItems", addResponse.data.data);
+            this.$store.dispatch("cart/calcAmount");
+          }
         }
       } catch (error) {
         if (error.response) {

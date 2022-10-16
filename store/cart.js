@@ -43,14 +43,25 @@ export const actions = {
   },
   async deleteItem({ commit, rootState, state, dispatch }, id) {
     const authorized = rootState.user.token;
+    const showNotify = async () =>
+      await commit(
+        "notify/setMessage",
+        {
+          type: "success",
+          message: "已從購物車移除",
+        },
+        { root: true }
+      );
     // 未登入下
     if (!authorized) {
       const cartData = state.items.filter(
         (item) => Number(item.id) !== Number(id)
       );
       commit("setItems", cartData);
-      localStorage.setItem("items", JSON.stringify(cartData));
+      const jsonData = JSON.stringify(cartData);
+      localStorage.setItem("items", jsonData);
       dispatch("calcAmount");
+      showNotify();
       return;
     }
     //登入下
@@ -65,14 +76,7 @@ export const actions = {
         coupons: [],
       });
       if (response.status === 200) {
-        await commit(
-          "notify/setMessage",
-          {
-            type: "success",
-            message: "已從購物車移除",
-          },
-          { root: true }
-        );
+        showNotify();
         try {
           const cartResponse = await this.$api.cart.get();
           cartResponse && (await commit("setItems", cartResponse.data.data));
@@ -92,6 +96,15 @@ export const actions = {
   },
   async addItem({ commit, rootState, state, dispatch }, id) {
     const authorized = rootState.user.token;
+    const showNotify = async () =>
+      await commit(
+        "notify/setMessage",
+        {
+          type: "success",
+          message: "已放入購物車",
+        },
+        { root: true }
+      );
     try {
       const response = await this.$api.cart.add({
         items: [
@@ -103,20 +116,14 @@ export const actions = {
         coupons: [],
       });
       if (response.status === 200) {
-        await commit(
-          "notify/setMessage",
-          {
-            type: "success",
-            message: "已放入購物車",
-          },
-          { root: true }
-        );
+        showNotify();
         // 未登入下
         if (!authorized) {
           const newItems = [...response.data.data, ...state.items];
           commit("setItems", newItems);
           localStorage.setItem("items", JSON.stringify(newItems));
           dispatch("calcAmount");
+          showNotify();
           return;
         }
         //登入下

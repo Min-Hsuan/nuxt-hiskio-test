@@ -47,6 +47,13 @@ export default {
       this.actionType = val;
     },
   },
+  mounted() {
+    const cartItems = localStorage.getItem("items");
+    cartItems &&
+      JSON.parse(cartItems).length > 0 &&
+      !this.token &&
+      this.$store.commit("cart/setItems", JSON.parse(cartItems));
+  },
 };
 </script>
 
